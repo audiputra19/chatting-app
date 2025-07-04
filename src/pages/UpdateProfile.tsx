@@ -35,7 +35,7 @@ const UpdateProfile: FC = () => {
 
         try {
             setIsLoading(true);
-            const res = await axios.post("http://localhost:3001/update-profile", formData, {
+            await axios.post("http://localhost:3001/update-profile", formData, {
                 headers: {'Content-Type': 'multipart/form-data'}
             });
             //setMessage(res.data.message);

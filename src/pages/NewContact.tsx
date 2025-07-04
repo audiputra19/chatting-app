@@ -14,7 +14,7 @@ const NewContact: FC = () => {
     const handleSaveContact = async () => {
         try {
             setLoading(true);
-            const res = await axios.post('http://localhost:3001/add-contacts', {
+            await axios.post('http://localhost:3001/add-contacts', {
                 ...form, 
                 userPhone: localStorage.getItem('token')
             });
