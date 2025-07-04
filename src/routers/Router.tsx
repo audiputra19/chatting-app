@@ -7,6 +7,7 @@ import MyContact from "../pages/MyContact";
 import Welcome from "../pages/Welcome";
 import Register from "../pages/Register";
 import UpdateProfile from "../pages/UpdateProfile";
+import ProtectedRoute from "./ProtectedRoute";
 
 const Router: FC = () => {
     let element = [
@@ -24,10 +25,10 @@ const Router: FC = () => {
         },
         {
             path: '/main',
-            element: <Main />
+            element: <ProtectedRoute><Main /></ProtectedRoute>
         },
         {
-            path: '/chat/:roomid',
+            path: '/chat',
             element: <ChatRoom />
         },
         {

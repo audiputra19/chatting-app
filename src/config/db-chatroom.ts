@@ -9,7 +9,7 @@ export const dbChatRoom = [
     }
 ]
 
-export const dbChatMessage : chatRoom[] = [
+/*export const dbChatMessage : chatRoom[] = [
     {
         id: 1,
         id_room: 1,
@@ -19,7 +19,7 @@ export const dbChatMessage : chatRoom[] = [
         date: "2025-06-20",
         type: "text",
         status: "seen",
-        replyTo: 0
+        replyTo: 
     },
     {
         id: 2,
@@ -87,4 +87,4 @@ export const dbChatMessage : chatRoom[] = [
         status: "seen",
         replyTo: 0
     },
-]
+]*/

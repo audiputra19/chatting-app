@@ -1,6 +1,12 @@
 export interface Contact {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
-    phone: string;
+}
+
+export interface AllContact {
+    phone: number;
+    firstName: string;
+    lastName: string;
+    profile_image: string;
 }

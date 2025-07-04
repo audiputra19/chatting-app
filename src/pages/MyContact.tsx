@@ -1,46 +1,28 @@
 import axios from "axios";
-import { ArrowLeft, Search, UserPlus, Users} from "lucide-react";
+import { ArrowLeft, Search, UserPlus, Users } from "lucide-react";
 import { useEffect, useState, type FC } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Contact } from "../interfaces/contact";
+import type { AllContact } from "../interfaces/contact";
+import ContactList from "../components/ContactList";
 
 const MyContact: FC = () => {
     const navigate = useNavigate();
-    const [contact, setContact] = useState<Contact[]>([]);
+    const [contact, setContact] = useState<AllContact[]>([]);
     const [loading, setLoading] = useState(true);
+    const userPhone = localStorage.getItem('token');
 
     useEffect(() => {
         axios
-            .get<Contact[]>('http://localhost:3001/all-contacts')
+            .post<AllContact[]>('http://localhost:3001/all-contacts', {userPhone})
             .then((res) => {
                 setContact(res.data);
-                console.log(res.data);
+                //console.log(res.data);
                 setLoading(false);
             })
             .catch(() => {
                 setLoading(false);
             });
     }, []);
-
-    const contactList = contact.map((item) => {
-        return (
-            <div 
-                className="px-5 py-3 flex items-center gap-5"
-                key={item.id}
-                onClick={() => navigate(`/chat/${item.id}`)}
-            >
-                <img 
-                    src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80"
-                    alt={item.firstName}
-                    className="w-12 h-12 object-cover rounded-full"
-                />
-                <div className="flex flex-col">
-                    <span className="text-lg">{item.firstName} {item.lastName}</span>
-                    <span className="text-base text-gray-400">Message yourself</span>
-                </div>
-            </div>
-        )
-    });
 
     return (
         <>
@@ -52,7 +34,7 @@ const MyContact: FC = () => {
                         <div className="flex items-center gap-5">
                             <ArrowLeft 
                                 size={24}
-                                onClick={() => navigate(-1)} 
+                                onClick={() => navigate("/main")} 
                             />
                             <div className="flex flex-col">
                                 <span className="text-lg font-semibold">Select Contact</span>
@@ -92,7 +74,7 @@ const MyContact: FC = () => {
                             <span className="text-sm px-5 text-gray-400 font-semibold">Contacts on Chatting App</span>
                         </div>
                         <div>
-                            {contactList}
+                            <ContactList contact={contact} />
                         </div>
                     </div>
                 </div>

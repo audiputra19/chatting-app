@@ -1,15 +1,17 @@
 import clsx from "clsx";
 import type { FC } from "react"
 import { Check, CheckCheck } from "lucide-react";
+import moment from "moment";
 
 interface Props {
     message: string;
     isSender: boolean;
     status: string;
-    time: string;
+    dateTime: string;
 }
 
-const BubbleChat: FC<Props> = ({ message, isSender, status, time }) => {
+const BubbleChat: FC<Props> = ({ message, isSender, status, dateTime }) => {
+    const time = moment(dateTime).format("HH:mm");
 
     const renderStatus = () => {
         if(isSender){
@@ -17,7 +19,7 @@ const BubbleChat: FC<Props> = ({ message, isSender, status, time }) => {
                 return <Check size={16} />
             } else if (status === 'delivered') {
                 return <CheckCheck size={16} />
-            } else if (status === 'seen') {
+            } else if (status === 'read') {
                 return <CheckCheck size={16} className="text-blue-800" />
             }
         }

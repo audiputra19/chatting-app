@@ -1,6 +1,6 @@
 import type { chatBox } from "../interfaces/chatBox";
 
-export const dbChatbox : chatBox[] = [
+export const dbChatbox = [
     {
       id: 1,
       sender: "John Davidson",

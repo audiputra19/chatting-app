@@ -1,11 +1,18 @@
-export interface chatRoom {
-    id: number;
-    id_room: number;
-    id_sender: number;
+export interface Chat {
+    id: string;
+    id_room: string;
+    id_sender: string;
     message: string;
-    time: string;
-    date: string;
+    dateTime: string;
     type: string;
     status: string;
-    replyTo: number;
+    replyTo: string | null;
+    created_at: string;
+}
+
+export interface chatRoom {
+    id: string;
+    user: string;
+    user2: string;
+    created_at: string;
 }

@@ -1,10 +1,9 @@
 export interface chatBox {
-    id: number;
+    id: string;
     sender: string;
     lastMessage: string;
     unreadMessages: number;
-    time: string;
-    date: string;
-    online: boolean;
-    profile: string;
+    dateTime: string;
+    name: string;
+    profile_image: string | undefined;
 }

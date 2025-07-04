@@ -6,22 +6,41 @@ import { useNavigate } from "react-router-dom";
 const NewContact: FC = () => {
     const navigate = useNavigate();
 
-    const [form, setForm] = useState({firstName: '', lastName: '', phone: ''});
+    const [form, setForm] = useState({firstName: '', lastName: '', newContact: ''});
     const [message, setMessage] = useState('');
+    const [checkNumber, setCheckNumber] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleSaveContact = async () => {
         try {
             setLoading(true);
-            const res = await axios.post('http://localhost:3001/add-contacts', form);
-            setMessage(`Contact successfully added: ${res.data.id}`);
-            setForm({firstName: '', lastName: '', phone: ''});
+            const res = await axios.post('http://localhost:3001/add-contacts', {
+                ...form, 
+                userPhone: localStorage.getItem('token')
+            });
+            setMessage(res.data.message);
+            navigate('/my-contact');
         } catch (error) {
             setLoading(false);
             setMessage('Failed to add contact');
         } finally {
             setLoading(false);
         }
+    }
+
+    const handleChangeNumber = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const phone = e.target.value;
+        const res = await axios.post('http://localhost:3001/check-number', {phone});
+        if(res.data.exists && phone !== '') {
+            setCheckNumber('This person is on Chatting App');
+        } else {
+            setCheckNumber('');
+        }
+
+        setForm(prev => ({
+            ...prev,
+            newContact: e.target.value
+        }));
     }
 
     return (
@@ -76,22 +95,20 @@ const NewContact: FC = () => {
                                     />
                                 </div>
                             </div>
-                            <div className="flex items-center gap-5">
-                                <div className="w-[25px] h-[25px]">
+                            <div className="flex gap-5">
+                                <div className="w-[25px] h-[25px] mt-4">
                                     <Phone />
                                 </div>
-                                <div className="flex-1">  
-                                    <input 
-                                        type="text" 
-                                        className="bg-[#2F2F2F] p-4 rounded-md w-full focus:outline-blue-500 focus:outline-2" 
-                                        placeholder="Phone"
-                                        onChange={(e) => 
-                                            setForm(prev => ({
-                                                ...prev,
-                                                phone: e.target.value
-                                            }))
-                                        } 
-                                    />
+                                <div className="flex-1"> 
+                                    <div>
+                                        <input 
+                                            type="text" 
+                                            className="bg-[#2F2F2F] p-4 rounded-md w-full focus:outline-blue-500 focus:outline-2" 
+                                            placeholder="Phone"
+                                            onChange={handleChangeNumber} 
+                                        />
+                                        {checkNumber && <p className="text-sm text-gray-400 mt-2">This person is on Chatting App</p>}
+                                    </div> 
                                 </div>
                             </div>
                         </div>
@@ -104,7 +121,6 @@ const NewContact: FC = () => {
                             Save
                         </button>
                     </div>
-                    {message && <p className="mt-2 text-sm text-green-600">{message}</p>}
                 </div>
             </div>
 

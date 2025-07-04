@@ -1,36 +1,45 @@
 import axios from "axios";
-import { use, useEffect, useRef, useState, type FC } from "react";
+import { useEffect, useRef, useState, type FC } from "react";
 import { useNavigate } from "react-router-dom";
+import LoadingSpinner from "../components/Loading";
 
 const Register: FC = () => {
     const navigate = useNavigate();
     const ref = useRef<HTMLInputElement>(null);
     const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         ref.current?.focus();
     }, [ref]);
 
     const handleRegister = async () => {
-        const phone = ref.current?.value || ''
+        const phone = ref.current?.value || '';
 
         try {
-            setLoading(true);
-            await axios.post('http://localhost:3001/register', { phone });
+            setIsLoading(true);    
+
+            const res = await axios.post('http://localhost:3001/register', { phone });
+            console.log(res.data.exists)
+            if(res.data.exists) {
+                localStorage.setItem("token", phone);
+                return navigate('/main');
+            }
+
             localStorage.setItem("phone", phone);
             setMessage("Phone number successfully registered");
             navigate('/update-profile');
         } catch (error) {
             setMessage("Phone failed to register");
-            setLoading(false);
+            setIsLoading(false);
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     }
 
     return (
         <>
+            {isLoading && <LoadingSpinner />}
             <div className="bg-[#1E1E1E] flex flex-col gap-7 p-5 h-screen">
                 <div className="flex flex-col gap-5 mt-5">
                     <span className="text-2xl font-semibold text-center text-white">Add your phone number</span>

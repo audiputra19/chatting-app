@@ -1,43 +1,122 @@
 import { ArrowLeft, MessageSquareText, Mic, SendHorizonal, Smile, Sticker } from "lucide-react";
 import { useEffect, useRef, useState, type FC } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { dbChatbox } from "../config/db-chatbox";
 import type { chatBox } from "../interfaces/chatBox";
 import BubbleChat from "../components/BubbleChat";
-import { dbChatMessage, dbChatRoom } from "../config/db-chatroom";
-import type { chatRoom } from "../interfaces/chatRoom";
+import type { Chat, chatRoom } from "../interfaces/chatRoom";
 import moment from "moment";
+import socket from "../socket/socket";
+import axios from "axios";
+import type { Users } from "../interfaces/users";
 
 const ChatRoom: FC = () => {
-    const { roomid } = useParams();
-    const currentUserId = 72646;
+    const location = useLocation();
+    const { state } = location;
+    const user = localStorage.getItem('token');
+    const user2 = state;
+    const [userData, setUserData] = useState<Users>();
     const navigate = useNavigate();
     const ref = useRef<HTMLInputElement>(null);
-    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState<Chat[]>([]);
+    const [roomChat, setRoomChat] = useState<chatRoom[]>([]);
+    const [input, setInput] = useState('');
+    const [currentRoomId, setCurrentRoomId] = useState<string>('');
+    const receiverId = currentRoomId ? getReceiverId(currentRoomId, user) : null;
+    const dataReceiver = dbChatbox.find(data => String(data.id) === receiverId);
 
-    const receiverId = getReceiverId(Number(roomid), currentUserId);
-    const dataReceiver: chatBox | undefined = dbChatbox.find(data => data.id === receiverId);
-
-    if (!dataReceiver) {
-        return (
-          <div className="text-center mt-10 text-red-500">
-            Chat not found
-          </div>
-        );
-    }
+    //console.log(userData);
 
     useEffect(() => {
         ref.current?.focus();
     }, [ref]);
 
-    const handleSendMessage = () => {
-        if (message.trim() !== ''){
-            setMessage('');
+    useEffect(() => {
+        axios
+            .post<chatRoom>('http://localhost:3001/chat-room', { user, user2 })
+            .then(res => {
+                if (res.data && res.data.id) {
+                    setCurrentRoomId(res.data.id);
+                }
+            })
+    },[user, user2]);
+
+    useEffect(() => {
+        if (currentRoomId && user) {
+            socket.emit("readMessage", { roomId: currentRoomId, user });
         }
+    }, [currentRoomId, user]);
+    
+    useEffect(() => {
+        axios
+            .post<Chat[]>('http://localhost:3001/chat-message', { roomId: currentRoomId })
+            .then(res => {
+                setMessages(res.data);
+            })
+            .catch(err => console.log(err));
+    },[currentRoomId]);
+
+    useEffect(() => {
+        axios
+            .post<Users>('http://localhost:3001/users', { user, user2 })
+            .then(res => {
+                setUserData(res.data);
+            })
+            .catch(err => console.log(err));
+    }, [user, user2]);
+
+    useEffect(() => {
+        socket.on("chatRoomCreated", (data: chatRoom) => {
+            setRoomChat((prev) => [...prev, data]);
+
+            if (data.user === user || data.user2 === user) {
+                setCurrentRoomId(data.id);
+            }
+        });
+
+        socket.on("newMessage", (data: Chat) => {
+            setMessages((prev) => [...prev, data]);
+        });
+
+        socket.on("messageDelivered", (data: Chat) => {
+            setMessages((prev) =>
+                prev.map(msg =>
+                    msg.id === data.id ? { ...msg, status: "delivered" } : msg
+                )
+            );
+        });
+
+        socket.on("messageRead", (data: Chat) => {
+            setMessages((prev) => 
+                prev.map(msg => 
+                    msg.id === data.id ? { ...msg, status: "read" } : msg
+                )
+            );
+        });
+
+        return () => {
+            socket.off("chatRoomCreated");
+            socket.off("newMessage");
+            socket.off("messageDelivered");
+            socket.off("messageRead");
+        };
+    }, [setRoomChat, setMessages]);
+
+
+    const handleSendMessage = () => {
+        if (input.trim() === '') return;
+        
+        socket.emit("sendMessage", {
+            user,
+            user2,
+            message: input,
+        });
+
+        setInput('');
     }
 
-    function getReceiverId(roomId: number, currentUserId: number) {
-        const room = dbChatRoom.find(r => r.id === roomId);
+    function getReceiverId(roomId: string, currentUserId: string | null) {
+        const room = roomChat.find(r => r.id === roomId);
         if (!room) return null;
       
         return room.user === currentUserId ? room.user2 : room.user;
@@ -58,19 +137,19 @@ const ChatRoom: FC = () => {
         }
     }
 
-    const chatFilterbyId = dbChatMessage.filter(chat => chat.id_room === Number(roomid));
-    const groupByDate = chatFilterbyId.reduce((acc: Record<string, chatRoom[]>, chat) => {
-        if (!acc[chat.date]) acc[chat.date] = [];
+    const chatFilterbyId = messages.filter(chat => chat.id_room === currentRoomId);
+    const groupByDate = chatFilterbyId.reduce((acc: Record<string, Chat[]>, chat) => {
+        const date = moment(chat.dateTime).format("YYYY-MM-DD");
+        if (!acc[date]) acc[date] = [];
 
-        acc[chat.date].push(chat);
+        acc[date].push(chat);
         return acc;
     }, {});
 
     const chatData = Object.entries(groupByDate)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([date, chats]) => {
-        const sortedChats = [...chats].sort((a, b) => a.time.localeCompare(b.time));
-
+        const sortedChats = [...chats].sort((a, b) => a.dateTime.localeCompare(b.dateTime));
         return (
             <div key={date}>
                 <div className="flex justify-center items-center">
@@ -82,9 +161,9 @@ const ChatRoom: FC = () => {
                         <BubbleChat 
                             key={chat.id}
                             message={chat.message}
-                            isSender={chat.id_sender === Number(currentUserId)}
+                            isSender={chat.id_sender === user}
                             status={chat.status}
-                            time={chat.time}
+                            dateTime={chat.dateTime}
                         />
                     )
                 })}
@@ -104,13 +183,13 @@ const ChatRoom: FC = () => {
                             onClick={() => navigate(-1)} 
                         />
                         <img 
-                            src={dataReceiver.profile}
-                            alt={dataReceiver.sender}
+                            src={userData?.profile_image}
+                            alt={userData?.phone}
                             className="w-9 h-9 object-cover rounded-full"
                         />
                         <div className="flex flex-col">
-                            <span className="font-semibold">{dataReceiver.sender}</span>
-                            {dataReceiver.online && (
+                            <span className="font-semibold">{userData?.name}</span>
+                            {dataReceiver?.online && (
                                 <div className="flex items-center gap-1">
                                     <div className="w-2 h-2 text-sm bg-green-500 rounded-full flex items-center justify-center"></div>
                                     <span className="text-xs">Online</span>
@@ -132,10 +211,15 @@ const ChatRoom: FC = () => {
                                     type="text" 
                                     className="bg-[#2F2F2F] pl-12 pr-3 py-2 h-12 rounded-full w-full outline-none"
                                     placeholder="Message"
-                                    value={message}
+                                    value={input}
                                     ref={ref}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if(e.key === 'Enter') {
+                                            e.preventDefault();
+                                            handleSendMessage();
+                                        }
+                                    }}
                                 />
                             </div>
                             <div 
@@ -143,7 +227,7 @@ const ChatRoom: FC = () => {
                                 onClick={handleSendMessage}
                             >
                             {
-                                message.trim() === ''
+                                input.trim() === ''
                                 ? <Mic size={22} /> 
                                 : <SendHorizonal size={22} />
                             }
