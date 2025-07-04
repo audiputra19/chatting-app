@@ -8,7 +8,7 @@ import ContactList from "../components/ContactList";
 const MyContact: FC = () => {
     const navigate = useNavigate();
     const [contact, setContact] = useState<AllContact[]>([]);
-    const [loading, setLoading] = useState(true);
+    //const [loading, setLoading] = useState(true);
     const userPhone = localStorage.getItem('token');
 
     useEffect(() => {
@@ -17,10 +17,10 @@ const MyContact: FC = () => {
             .then((res) => {
                 setContact(res.data);
                 //console.log(res.data);
-                setLoading(false);
+                //setLoading(false);
             })
             .catch(() => {
-                setLoading(false);
+                //setLoading(false);
             });
     }, []);
 

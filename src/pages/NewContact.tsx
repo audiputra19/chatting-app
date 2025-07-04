@@ -7,7 +7,7 @@ const NewContact: FC = () => {
     const navigate = useNavigate();
 
     const [form, setForm] = useState({firstName: '', lastName: '', newContact: ''});
-    const [message, setMessage] = useState('');
+    //const [message, setMessage] = useState('');
     const [checkNumber, setCheckNumber] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -18,11 +18,11 @@ const NewContact: FC = () => {
                 ...form, 
                 userPhone: localStorage.getItem('token')
             });
-            setMessage(res.data.message);
+            //setMessage(res.data.message);
             navigate('/my-contact');
         } catch (error) {
             setLoading(false);
-            setMessage('Failed to add contact');
+            //setMessage('Failed to add contact');
         } finally {
             setLoading(false);
         }

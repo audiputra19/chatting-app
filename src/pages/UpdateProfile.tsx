@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const UpdateProfile: FC = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState('');
+    //const [message, setMessage] = useState('');
     const [name, setName] = useState('');
     const [preview, setPreview] = useState<string | null>(null);
     const [photo, setPhoto] = useState<File | null>(null);
@@ -21,12 +21,12 @@ const UpdateProfile: FC = () => {
             setPreview(objectUrl);
             setPhoto(file);
         } else {
-            setMessage('Please select an image file');
+            //setMessage('Please select an image file');
         }
     }
 
     const handleUpdateProfile = async () => {
-        if (!name) return setMessage('Please fill in name fields');
+        //if (!name) return setMessage('Please fill in name fields');
 
         const formData = new FormData();
         formData.append('name', name);
@@ -38,12 +38,12 @@ const UpdateProfile: FC = () => {
             const res = await axios.post("http://localhost:3001/update-profile", formData, {
                 headers: {'Content-Type': 'multipart/form-data'}
             });
-            setMessage(res.data.message);
+            //setMessage(res.data.message);
             localStorage.setItem('token', phone);
             localStorage.removeItem('phone');
             navigate('/main');
         } catch (error) {
-            setMessage('Failed to update profile');
+            //setMessage('Failed to update profile');
             setIsLoading(false);
         } finally {
             setIsLoading(false);
