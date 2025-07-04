@@ -1,12 +1,9 @@
-import { useEffect, useState, type FC } from "react";
-import { dbChatbox } from "../config/db-chatbox";
-import type { chatBox } from "../interfaces/chatBox";
-import moment from "moment";
-import { useNavigate } from "react-router-dom";
-import { dbChatRoom } from "../config/db-chatroom";
 import axios from "axios";
+import moment from "moment";
+import { useEffect, useState, type FC } from "react";
+import { useNavigate } from "react-router-dom";
+import type { chatBox } from "../interfaces/chatBox";
 import socket from "../socket/socket";
-import type { Users } from "../interfaces/users";
 
 const Chats: FC = () => {
     const navigate = useNavigate();

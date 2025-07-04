@@ -1,4 +1,3 @@
-import type { chatRoom } from "../interfaces/chatRoom";
 
 export const dbChatRoom = [
     {

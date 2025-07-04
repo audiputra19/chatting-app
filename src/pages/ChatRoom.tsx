@@ -1,14 +1,13 @@
-import { ArrowLeft, MessageSquareText, Mic, SendHorizonal, Smile, Sticker } from "lucide-react";
-import { useEffect, useRef, useState, type FC } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { dbChatbox } from "../config/db-chatbox";
-import type { chatBox } from "../interfaces/chatBox";
-import BubbleChat from "../components/BubbleChat";
-import type { Chat, chatRoom } from "../interfaces/chatRoom";
-import moment from "moment";
-import socket from "../socket/socket";
 import axios from "axios";
+import { ArrowLeft, Mic, SendHorizonal, Smile } from "lucide-react";
+import moment from "moment";
+import { useEffect, useRef, useState, type FC } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import BubbleChat from "../components/BubbleChat";
+import { dbChatbox } from "../config/db-chatbox";
+import type { Chat, chatRoom } from "../interfaces/chatRoom";
 import type { Users } from "../interfaces/users";
+import socket from "../socket/socket";
 
 const ChatRoom: FC = () => {
     const location = useLocation();

@@ -1,7 +1,7 @@
 import { MessageSquarePlus, MessageSquareText } from "lucide-react"
 import type { FC } from "react"
+import { useNavigate } from "react-router-dom"
 import Chats from "../components/Chats"
-import { Navigate, useNavigate } from "react-router-dom"
 
 const Main: FC = () => {
     const navigate = useNavigate();

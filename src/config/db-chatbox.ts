@@ -1,4 +1,3 @@
-import type { chatBox } from "../interfaces/chatBox";
 
 export const dbChatbox = [
     {

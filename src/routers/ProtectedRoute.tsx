@@ -1,4 +1,4 @@
-import { useEffect, type FC, type JSX, type ReactNode } from "react";
+import { useEffect, type FC, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
